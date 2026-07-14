@@ -574,58 +574,64 @@ def main():
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("Baixar CSV", csv, "historico_chips.csv", "text/csv")
     
-    # ========== IMPORTAR SMARTRADER ==========
+ 
+       # ========== IMPORTAR SMARTRADER ==========
     elif menu == "📁 Importar SmartRader":
         st.header("📁 Importar Planilha de Vendas (SmartRader)")
-        st.info("Faça upload da planilha de vendas exportada do SmartRader (mesmo formato que você costuma me enviar). O sistema vai dar baixa automática nos chips vendidos se o ICCID/barcode estiver cadastrado.")
-        
+        st.info("Faça upload da planilha de vendas exportada do SmartRader. O sistema vai dar baixa automática nos chips vendidos (se o ICCID estiver cadastrado).")
+
         uploaded = st.file_uploader("Selecione o arquivo Excel (.xlsx)", type=["xlsx", "xls"])
-        
+
         if uploaded:
             try:
-                df = pd.read_excel(uploaded)
-                st.write("Pré-visualização:")
+                # === CORREÇÃO PRINCIPAL ===
+                df = pd.read_excel(uploaded, dtype=str)
+
+                st.write("Pré-visualização dos dados:")
                 st.dataframe(df.head(10))
-                
-                # Tentar identificar colunas de ICCID / Linha / Produto / Promotor
+
                 colunas = df.columns.tolist()
-                st.write("Colunas encontradas:", colunas)
-                
-                col_iccid = st.selectbox("Qual coluna tem o ICCID / Código de barras?", colunas)
-                col_produto = st.selectbox("Qual coluna tem o Produto?", colunas)
-                col_promotor = st.selectbox("Qual coluna tem o Nome do Promotor?", colunas)
-                col_status = st.selectbox("Qual coluna tem o Status (Vendido)?", colunas)
-                
+
+                col_iccid = st.selectbox(
+                    "Selecione a coluna que contém o **ICCID / Código de Barras**",
+                    colunas
+                )
+
+                col_status = st.selectbox(
+                    "Selecione a coluna que contém o **Status** (Vendido / Aprovado)",
+                    colunas
+                )
+
                 if st.button("Processar Vendas e Dar Baixa", type="primary"):
                     processados = 0
                     nao_encontrados = 0
                     erros = []
-                    
+
                     for _, row in df.iterrows():
                         status = str(row[col_status]).strip().upper()
                         if status not in ['VENDIDO', 'APROVADO']:
                             continue
-                        
+
                         barcode = str(row[col_iccid]).strip()
-                        if not barcode or barcode == 'nan':
+                        if not barcode or barcode == 'nan' or barcode == '':
                             continue
-                        
-                        ok, msg = registrar_venda(barcode, f"Import SmartRader - {row.get(col_promotor, '')}")
+
+                        ok, msg = registrar_venda(barcode, f"Importado via SmartRader")
                         if ok:
                             processados += 1
                         else:
                             nao_encontrados += 1
                             erros.append(f"{barcode}: {msg}")
-                    
+
                     st.success(f"✅ {processados} vendas processadas com sucesso!")
                     if nao_encontrados > 0:
-                        st.warning(f"⚠️ {nao_encontrados} chips não encontrados no estoque (já baixados ou nunca cadastrados)")
-                        with st.expander("Ver detalhes"):
-                            for e in erros[:50]:
+                        st.warning(f"⚠️ {nao_encontrados} chips não foram encontrados no estoque.")
+                        with st.expander("Ver detalhes dos erros"):
+                            for e in erros[:30]:
                                 st.text(e)
+
             except Exception as e:
-                st.error(f"Erro ao ler arquivo: {e}")
-    
+                st.error(f"Erro ao processar o arquivo: {e}")
     # ========== CONFIGURAÇÕES ==========
     elif menu == "⚙️ Configurações":
         st.header("⚙️ Configurações")
