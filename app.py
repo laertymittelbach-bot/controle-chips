@@ -465,41 +465,36 @@ def main():
                     st.error(msg)
     
     # ========== ENTREGA ==========
-   elif menu == "🚚 Entrega para Promotor":
+      elif menu == "🚚 Entrega para Promotor":
         st.header("🚚 Entrega de Chip para Promotor")
 
-        # Scanner de código de barras com câmera
         st.subheader("📷 Ler código de barras com câmera")
 
         scanner_html = """
         <div>
-            <button onclick="startScanner()" style="background-color:#ff4b4b;color:white;padding:10px 20px;border:none;border-radius:8px;font-size:16px;">
+            <button onclick="startScanner()" style="background-color:#ff4b4b;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:16px;cursor:pointer;">
                 📷 Abrir Câmera e Ler Código
             </button>
             <div id="scanner-container" style="margin-top:15px;"></div>
+
             <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
             <script>
                 function startScanner() {
                     const container = document.getElementById('scanner-container');
-                    container.innerHTML = '<div id="interactive" style="width:100%;max-width:400px;height:300px;border:2px solid #ccc;"></div>';
-                    
+                    container.innerHTML = '<div id="interactive" style="width:100%; max-width:400px; height:300px; border:2px solid #ccc;"></div>';
+
                     Quagga.init({
                         inputStream: {
                             name: "Live",
                             type: "LiveStream",
                             target: document.querySelector('#interactive'),
-                            constraints: {
-                                facingMode: "environment"
-                            }
+                            constraints: { facingMode: "environment" }
                         },
                         decoder: {
                             readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
                         }
                     }, function(err) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
+                        if (err) { console.log(err); return; }
                         Quagga.start();
                     });
 
@@ -507,8 +502,6 @@ def main():
                         const code = result.codeResult.code;
                         Quagga.stop();
                         container.innerHTML = '';
-                        
-                        // Envia o valor para o Streamlit
                         window.parent.postMessage({
                             type: "streamlit:setComponentValue",
                             value: code
@@ -519,9 +512,8 @@ def main():
         </div>
         """
 
-        barcode_from_camera = st.components.v1.html(scanner_html, height=400)
+        barcode_from_camera = st.components.v1.html(scanner_html, height=420)
 
-        # Campo de texto (pode ser preenchido manualmente ou pela câmera)
         barcode = st.text_input(
             "ICCID / Código de Barras",
             value=barcode_from_camera if barcode_from_camera else "",
