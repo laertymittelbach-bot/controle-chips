@@ -465,7 +465,7 @@ def main():
                     st.error(msg)
     
     # ========== ENTREGA ==========
-         elif menu == "🚚 Entrega para Promotor":
+            elif menu == "🚚 Entrega para Promotor":
         st.header("🚚 Entrega de Chip para Promotor")
 
         st.subheader("📷 Ler código de barras com câmera")
@@ -481,20 +481,25 @@ def main():
             <script>
                 function startScanner() {
                     const container = document.getElementById('scanner-container');
-                    container.innerHTML = '<div id="interactive" style="width:100%; max-width:400px; height:300px; border:2px solid #ccc;"></div>';
+                    container.innerHTML = '<div id="interactive" style="width:100%;max-width:400px;height:300px;border:2px solid #ccc;"></div>';
 
                     Quagga.init({
                         inputStream: {
                             name: "Live",
                             type: "LiveStream",
                             target: document.querySelector('#interactive'),
-                            constraints: { facingMode: "environment" }
+                            constraints: {
+                                facingMode: "environment"
+                            }
                         },
                         decoder: {
                             readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
                         }
                     }, function(err) {
-                        if (err) { console.log(err); return; }
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
                         Quagga.start();
                     });
 
@@ -531,7 +536,6 @@ def main():
                     st.error(msg)
             else:
                 st.warning("Por favor, leia ou digite o código de barras.")
-    
     # ========== VENDA ==========
     elif menu == "💰 Registrar Venda":
         st.header("💰 Registrar Venda (Baixa de Estoque)")
