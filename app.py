@@ -465,7 +465,7 @@ def main():
                     st.error(msg)
     
     # ========== ENTREGA ==========
-      elif menu == "🚚 Entrega para Promotor":
+         elif menu == "🚚 Entrega para Promotor":
         st.header("🚚 Entrega de Chip para Promotor")
 
         st.subheader("📷 Ler código de barras com câmera")
